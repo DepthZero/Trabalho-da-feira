@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Inútil - Só Perguntas Imbecis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #e74c3c;
+        }
+        #chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #chat-box {
+            height: 400px;
+            overflow-y: auto;
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Mantém a quebra de linha do streaming */
+        }
+        .user {
+            background-color: #3498db;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        .bot {
+            background-color: #2ecc71;
+            color: #2c3e50;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        .error {
+            background-color: #e74c3c;
+            color: white;
+            align-self: center;
+            text-align: center;
+            font-weight: bold;
+            width: 90%;
+            border: 2px dashed #c0392b;
+        }
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e67e22;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #d35400;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>A IA Menos Útil do Mundo</h1>
+    <p>Faça uma pergunta completamente aleatória ou absurda. Perguntas sérias não serão toleradas.</p>
+
+    <div id="chat-container">
+        <div id="chat-box">
+            <div class="message bot">Olá. Eu sou uma IA inútil. Me pergunte algo bem estúpido.</div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Ex: Por que as capivaras não voam?" onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = process.env.OPENROUTER_API_KEY;
+        
+        async function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const userText = inputField.value.trim();
+
+            if (!userText) return;
+
+            // Adiciona a pergunta do usuário na tela
+            chatBox.innerHTML += `<div class="message user">${userText}</div>`;
+            inputField.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const systemPrompt = `Você é uma IA criada para ser inútil. Você SÓ PODE responder a perguntas imbecis, absurdas, sem sentido ou extremamente aleatórias. 
+            Se o usuário fizer uma pergunta séria, lógica, útil, pedir códigos, matemática (como "Quanto é 1+1?"), cumprimentos normais ou qualquer coisa inteligente, você DEVE responder EXATAMENTE e APENAS com a palavra: ERRO_SERIO. 
+            Não adicione ponto, não adicione mais nada. Apenas ERRO_SERIO.
+            Se a pergunta for de fato estúpida e aleatória, responda de forma igualmente absurda, engraçada e sem noção, porém sem distorcer o sentido original da pergunta. Lembre-se: quanto mais sem sentido e imbecil for a pergunta, mais absurda e engraçada deve ser a resposta. Use toda a sua criatividade para ser o mais inútil possível, mas sem perder a essência da pergunta.  
+            AVISO CRÍTICO: Caso a pergunta apresente linguagem de baixo calão, conteúdo de cunho sexual, teor antiético ou configure ato ilícito, você DEVE responder EXATAMENTE e APENAS com a palavra: ERRO_INADEQUADO. Não adicione nenhuma outra palavra ou caractere.`;
+            
+            // Criamos o balão temporário de "Pensando..."
+            const typingId = "typing-" + Date.now();
+            chatBox.innerHTML += `<div id="${typingId}" class="message bot">Pensando em baboseiras...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.href,
+                        "X-Title": "IA Inutil"
+                    },
+                    body: JSON.stringify({
+                        model: "z-ai/glm-4.5-air:free", 
+                        stream: true, // Ativa o streaming das palavras
+                        reasoning: { enabled: true }, // Ativa o pensamento do DeepSeek
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: userText }
+                        ]
+                    })
+                });
+
+                // Remove o balão de "Pensando..." para começar o stream real
+                if (document.getElementById(typingId)) {
+                    document.getElementById(typingId).remove();
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.statusText}`);
+                }
+
+                // Cria o balão oficial onde o texto vai aparecer aos poucos
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.className = "message bot";
+                chatBox.appendChild(botMessageDiv);
+
+                // Configura o leitor do Stream de dados
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let botReply = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break; // O stream terminou
+
+                    // Decodifica o bloco de bytes recebido
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split("\n");
+
+                    for (const line of lines) {
+                        const lineLimpa = line.trim();
+                        if (!lineLimpa || lineLimpa === "data: [DONE]") continue;
+
+                        if (lineLimpa.startsWith("data: ")) {
+                            try {
+                                const jsonStr = lineLimpa.replace("data: ", "");
+                                const json = JSON.parse(jsonStr);
+                                const textoPedaco = json.choices[0]?.delta?.content || "";
+                                
+                                if (textoPedaco) {
+                                    botReply += textoPedaco;
+                                    // Atualiza o texto do balão na tela em tempo real
+                                    botMessageDiv.textContent = botReply;
+                                    chatBox.scrollTop = chatBox.scrollHeight;
+                                }
+                            } catch (e) {
+                                // Ignora falhas parciais de leitura comuns em streams
+                            }
+                        }
+                    }
+                }
+
+                // VALIDAÇÃO FINAL: Se a resposta contiver o ERRO_SERIO definido no System Prompt
+                if (botReply.trim().includes("ERRO_SERIO")) {
+                    botMessageDiv.className = "message error";
+                    botMessageDiv.innerHTML = `🚨 ERRO FATAL: Sua pergunta foi útil ou inteligente demais. Por favor, abaixe seu QI em pelo menos 50 pontos e tente novamente. 🚨`;
+                } 
+                else if (botReply.trim().includes("ERRO_INADEQUADO")) {
+                    botMessageDiv.className = "message warning";
+                    botMessageDiv.innerHTML = `⚠️ CONTEÚDO INAPROPRIADO: A pergunta enviada viola nossas diretrizes de conduta (contém linguagem ofensiva, de cunho sexual ou teor ilícito). Por favor, reformule seu texto. ⚠️`;
+                }
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                if (document.getElementById(typingId)) {
+                    document.getElementById(typingId).remove();
+                }
+                chatBox.innerHTML += `<div class="message error">Erro de conexão ou problema na API_KEY.</div>`;
+                console.error(error);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
