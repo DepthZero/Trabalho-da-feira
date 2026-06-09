@@ -161,45 +161,14 @@
                 }
 
                 // Cria o balão oficial onde o texto vai aparecer aos poucos
-                const botMessageDiv = document.createElement("div");
-                botMessageDiv.className = "message bot";
-                chatBox.appendChild(botMessageDiv);
+               const data = await response.json();
+               const botReply = data.choices[0].message.content;
 
-                // Configura o leitor do Stream de dados
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder("utf-8");
-                let botReply = "";
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break; // O stream terminou
-
-                    // Decodifica o bloco de bytes recebido
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split("\n");
-
-                    for (const line of lines) {
-                        const lineLimpa = line.trim();
-                        if (!lineLimpa || lineLimpa === "data: [DONE]") continue;
-
-                        if (lineLimpa.startsWith("data: ")) {
-                            try {
-                                const jsonStr = lineLimpa.replace("data: ", "");
-                                const json = JSON.parse(jsonStr);
-                                const textoPedaco = json.choices[0]?.delta?.content || "";
-                                
-                                if (textoPedaco) {
-                                    botReply += textoPedaco;
-                                    // Atualiza o texto do balão na tela em tempo real
-                                    botMessageDiv.textContent = botReply;
-                                    chatBox.scrollTop = chatBox.scrollHeight;
-                                }
-                            } catch (e) {
-                                // Ignora falhas parciais de leitura comuns em streams
-                            }
-                        }
-                    }
-                }
+               // Cria o balão da resposta
+               const botMessageDiv = document.createElement("div");
+               botMessageDiv.className = "message bot";
+               botMessageDiv.textContent = botReply;
+               chatBox.appendChild(botMessageDiv);
 
                 // VALIDAÇÃO FINAL: Se a resposta contiver o ERRO_SERIO definido no System Prompt
                 if (botReply.trim().includes("ERRO_SERIO")) {
