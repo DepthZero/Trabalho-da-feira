@@ -1,0 +1,14 @@
+{
+  "name": "trabalho-da-feira",
+  "version": "1.0.0",
+  "description": "IA Inútil - Só Perguntas Imbecis",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "test": "echo 'No tests configured'"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.14"
+  }
+}

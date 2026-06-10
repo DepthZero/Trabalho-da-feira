@@ -108,6 +108,11 @@
     </div>
 
     <script>
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+
+    <script>
         
         async function sendMessage() {
             const inputField = document.getElementById('user-input');
@@ -177,7 +182,7 @@
                 } 
                 else if (botReply.trim().includes("ERRO_INADEQUADO")) {
                     botMessageDiv.className = "message warning";
-                    botMessageDiv.innerHTML = `⚠️ CONTEÚDO INAPROPRIADO: A pergunta enviada viola nossas diretrizes de conduta (contém linguagem ofensiva, de cunho sexual ou teor ilícito). Por favor, reformule seu texto. ⚠️`;
+                    botMessageDiv.innerHTML = `⚠��� CONTEÚDO INAPROPRIADO: A pergunta enviada viola nossas diretrizes de conduta (contém linguagem ofensiva, de cunho sexual ou teor ilícito). Por favor, reformule seu texto. ⚠️`;
                 }
 
                 chatBox.scrollTop = chatBox.scrollHeight;
